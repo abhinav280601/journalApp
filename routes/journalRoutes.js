@@ -17,11 +17,11 @@ router.delete(
   authenticateToken,
   journalController.deleteJournal
 );
-router.get(
-  "/tagged-journals/:studentId",
-  authenticateToken,
-  journalController.getTaggedJournals
-);
+// router.get(
+//   "/tagged-journals/:studentId",
+//   authenticateToken,
+//   journalController.getTaggedJournals
+// );
 router.get(
   "/teacher-journals",
   authenticateToken,

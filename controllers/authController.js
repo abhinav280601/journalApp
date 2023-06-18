@@ -12,11 +12,20 @@ async function registerTeacher(req, res) {
 
     // Check if the user already exists
     const query = `SELECT username FROM teachers WHERE username = ?`;
-    const existingUser = await sequelize.query(query, {
+    const [existingUser] = await sequelize.query(query, {
       replacements: [username],
     });
-    if (existingUser) {
+    if (existingUser.length > 0) {
       return res.status(400).json({ message: "Username already exists" });
+    }
+
+    // Check if email is already in use
+    const queryEmail = `SELECT email FROM teachers WHERE email = ?`;
+    const [existingEmail] = await sequelize.query(queryEmail, {
+      replacements: [email],
+    });
+    if (existingEmail.length > 0) {
+      return res.status(400).json({ message: "Email already in use" });
     }
 
     // Hash the password
@@ -48,8 +57,16 @@ async function registerStudent(req, res) {
     const [existingUser] = await sequelize.query(query, {
       replacements: [username],
     });
-    if (existingUser) {
+    if (existingUser.length > 0) {
       return res.status(400).json({ message: "Username already exists" });
+    }
+    // Check if email is already in use
+    const queryEmail = `SELECT email FROM students WHERE email = ?`;
+    const [existingEmail] = await sequelize.query(queryEmail, {
+      replacements: [email],
+    });
+    if (existingEmail.length > 0) {
+      return res.status(400).json({ message: "Email already in use" });
     }
 
     // Hash the password
