@@ -128,7 +128,6 @@ async function deleteJournal(req, res) {
       `SELECT id FROM journals WHERE title = :journalId`,
       {
         replacements: { journalId },
-        type: QueryTypes.SELECT,
       }
     );
 
