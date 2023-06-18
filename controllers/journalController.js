@@ -53,10 +53,9 @@ async function publishJournal(req, res) {
     }
 
     const [existingJournal] = await sequelize.query(
-      `SELECT id FROM tags WHERE journal_id = :journalId`,
+      `SELECT journal_id FROM tags WHERE journal_id = :journalId`,
       {
         replacements: { journalId: journal.id },
-        type: QueryTypes.SELECT,
       }
     );
 
