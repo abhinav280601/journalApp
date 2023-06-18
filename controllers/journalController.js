@@ -60,7 +60,7 @@ async function publishJournal(req, res) {
       }
     );
 
-    if (existingJournal) {
+    if (existingJournal.length > 0) {
       return res.status(400).json({ message: "Journal already published" });
     }
 
