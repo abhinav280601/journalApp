@@ -10,12 +10,24 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send an email to a dynamic email address
-function sendEmail(toEmails) {
+function sendEmail(toEmail, studentName, journalName, teacherName) {
   const mailOptions = {
     from: "abhinavloan28@gmail.com",
-    to: toEmails.join(", "),
-    subject: "Journal App",
-    text: "You have been tagged in a journal.",
+    to: toEmail,
+    subject: journalName + " Journal Notification",
+    text:
+      "Dear " +
+      studentName +
+      ", You have been tagged in " +
+      journalName +
+      " journal by " +
+      teacherName +
+      ". Please log in to your account to view the journal.",
+    html: `
+      <h3>Dear ${studentName},</h3>
+      <p>You have been tagged in <strong >${journalName}</strong> journal by <em style="color: red;">${teacherName}</em>.</p>
+      <p style="color: red;"> Please <a href="https://journalapptest.onrender.com/auth/loginStudent" style="color: blue;">log in </a> to your account to view the journal.</p>
+    `,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {

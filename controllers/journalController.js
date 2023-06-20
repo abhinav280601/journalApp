@@ -1,11 +1,11 @@
 const sequelize = require("../config/database");
 const { QueryTypes } = require("sequelize");
 const { sendEmail } = require("../config/mailer");
+const fs = require("fs");
 
 async function createJournal(req, res) {
   try {
-    const { title, description, tagged_students, attachment, username } =
-      req.body;
+    const { title, description, attachment, username } = req.body;
 
     const selectQuery = `SELECT id FROM teachers WHERE username = :username`;
     const [teacher] = await sequelize.query(selectQuery, {
@@ -63,7 +63,6 @@ async function publishJournal(req, res) {
     if (existingJournal.length > 0) {
       return res.status(400).json({ message: "Journal already published" });
     }
-    const studentEmails = [];
     for (let i = 0; i < tagged_students.length; i++) {
       const [student] = await sequelize.query(
         `SELECT id FROM students WHERE username = :username`,
@@ -74,14 +73,30 @@ async function publishJournal(req, res) {
       );
 
       const [emails] = await sequelize.query(
-        `SELECT email FROM students WHERE username = :username`,
+        `SELECT * FROM students WHERE username = :username`,
         {
           replacements: { username: tagged_students[i] },
           type: QueryTypes.SELECT,
         }
       );
 
-      studentEmails.push(emails.email);
+      const [teacher] = await sequelize.query(
+        `SELECT * FROM journals WHERE id = :journal_id`,
+        {
+          replacements: { journal_id: journal.id },
+          type: QueryTypes.SELECT,
+        }
+      );
+
+      const [teacherName] = await sequelize.query(
+        `SELECT * FROM teachers WHERE id = :teacher_id`,
+        {
+          replacements: { teacher_id: teacher.teacher_id },
+          type: QueryTypes.SELECT,
+        }
+      );
+
+      sendEmail(emails.email, emails.username, title, teacherName.username);
 
       if (!student) {
         return res
@@ -100,7 +115,6 @@ async function publishJournal(req, res) {
         }
       );
     }
-    sendEmail(studentEmails);
 
     res.json({ message: "Journal Published!" });
   } catch (error) {
