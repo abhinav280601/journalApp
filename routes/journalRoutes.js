@@ -2,10 +2,18 @@
 const express = require("express");
 const journalController = require("../controllers/journalController");
 const authenticateToken = require("../middlewares/authMiddleware");
+const multer = require("multer");
+//multer middleware instance
+const upload = multer();
 
 const router = express.Router();
 
-router.post("/journals", authenticateToken, journalController.createJournal);
+router.post(
+  "/journals",
+  authenticateToken,
+  upload.single("attachment"),
+  journalController.createJournal
+);
 router.post("/publish", authenticateToken, journalController.publishJournal);
 router.put(
   "/journals/:journalId",

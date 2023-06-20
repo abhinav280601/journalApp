@@ -5,8 +5,8 @@ const fs = require("fs");
 
 async function createJournal(req, res) {
   try {
-    const { title, description, attachment, username } = req.body;
-
+    const { title, description, username } = req.body;
+    const attachment = req.file;
     const selectQuery = `SELECT id FROM teachers WHERE username = :username`;
     const [teacher] = await sequelize.query(selectQuery, {
       replacements: { username },
@@ -16,14 +16,17 @@ async function createJournal(req, res) {
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found" });
     }
-
+    let attachmentValue = "";
+    if (attachment) {
+      attachmentValue = attachment.buffer;
+    }
     const [journal] = await sequelize.query(
       `INSERT INTO journals (title, description, attachment, teacher_id) VALUES (:title, :description, :attachment, :teacherId)`,
       {
         replacements: {
           title,
           description,
-          attachment: attachment || "",
+          attachment: attachmentValue,
           teacherId: teacher.id,
         },
         type: QueryTypes.INSERT,
