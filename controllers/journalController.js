@@ -2,6 +2,7 @@ const sequelize = require("../config/database");
 const { QueryTypes } = require("sequelize");
 const { sendEmail } = require("../config/mailer");
 const fs = require("fs");
+// const fileType = require("file-type");
 
 async function createJournal(req, res) {
   try {
@@ -245,7 +246,22 @@ async function getJournalByStudent(req, res) {
         type: QueryTypes.SELECT,
       }
     );
+    for (let i = 0; i < journals.length; i++) {
+      if (journals[i].attachment) {
+        // const fileInfo = fileType(bufferData);
+        // const fileExt = fileInfo.ext;
+        const directoryPath = "./";
+        const filePath = directoryPath + "newFile.img";
 
+        fs.writeFile(filePath, journals[i].attachment, "binary", (err) => {
+          if (err) {
+            console.error("Error saving file:", err);
+          } else {
+            console.log("File saved successfully");
+          }
+        });
+      }
+    }
     res.json(journals);
   } catch (error) {
     console.error("Error retrieving journals:", error);
@@ -253,30 +269,29 @@ async function getJournalByStudent(req, res) {
   }
 }
 
-async function getTaggedJournals(req, res) {
-  try {
-    const { studentId } = req.params;
+// async function getTaggedJournals(req, res) {
+//   try {
+//     const { studentId } = req.params;
 
-    const journals = await sequelize.query(
-      `SELECT * FROM journals WHERE tagged_students LIKE :studentId`,
-      {
-        replacements: { studentId: `%${studentId}%` },
-        type: QueryTypes.SELECT,
-      }
-    );
+//     const journals = await sequelize.query(
+//       `SELECT * FROM journals WHERE tagged_students LIKE :studentId`,
+//       {
+//         replacements: { studentId: `%${studentId}%` },
+//         type: QueryTypes.SELECT,
+//       }
+//     );
 
-    res.json(journals);
-  } catch (error) {
-    console.error("Error retrieving tagged journals:", error);
-    res.status(500).json({ message: "Failed to retrieve tagged journals" });
-  }
-}
+//     res.json(journals);
+//   } catch (error) {
+//     console.error("Error retrieving tagged journals:", error);
+//     res.status(500).json({ message: "Failed to retrieve tagged journals" });
+//   }
+// }
 
 module.exports = {
   createJournal,
   updateJournal,
   deleteJournal,
-  getTaggedJournals,
   publishJournal,
   getJournalByTeacher,
   getJournalByStudent,

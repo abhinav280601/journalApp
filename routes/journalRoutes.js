@@ -2,11 +2,13 @@
 const express = require("express");
 const journalController = require("../controllers/journalController");
 const authenticateToken = require("../middlewares/authMiddleware");
+const cors = require("cors");
 const multer = require("multer");
 //multer middleware instance
 const upload = multer();
 
 const router = express.Router();
+router.use(cors());
 
 router.post(
   "/journals",

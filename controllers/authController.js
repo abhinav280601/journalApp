@@ -111,7 +111,7 @@ async function loginTeacher(req, res) {
     });
 
     res.json({ token });
-    req.session.token = token;
+    // req.session.token = token;
   } catch (error) {
     console.error("Error logging in:", error);
     res.status(500).json({ message: "Failed to login" });

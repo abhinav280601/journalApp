@@ -5,6 +5,11 @@ const sequelize = require("../config/database");
 const Journal = sequelize.define(
   "journals",
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     title: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -15,19 +20,12 @@ const Journal = sequelize.define(
     },
     attachment: {
       type: DataTypes.BLOB,
-      defaultValue: [],
     },
-    // tagged_students: {
-    //   type: DataTypes.JSON,
-    //   defaultValue: [],
-    // },
     publish_time: {
       type: DataTypes.DATE,
-      defaultValue: [],
     },
     teacher_id: {
       type: DataTypes.INTEGER,
-      defaultValue: [],
       foreignKey: true,
     },
   },
