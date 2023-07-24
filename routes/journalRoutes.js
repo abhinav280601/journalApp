@@ -8,7 +8,12 @@ const multer = require("multer");
 const upload = multer();
 
 const router = express.Router();
-router.use(cors());
+const corsOptions = {
+  origin: "http://localhost:5173/",
+  optionsSuccessStatus: 200,
+};
+
+router.use(cors(corsOptions));
 
 router.post(
   "/journals",
