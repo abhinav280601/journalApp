@@ -15,7 +15,8 @@ function authenticate(req, res, next) {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
     // Attach the decoded token to the request object for further use
-    req.user = decodedToken;
+    req.userId = decodedToken.userId;
+    req.role = decodedToken.role;
 
     // Proceed to the next middleware or route handler
     next();

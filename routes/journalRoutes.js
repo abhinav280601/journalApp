@@ -9,7 +9,7 @@ const upload = multer();
 
 const router = express.Router();
 const corsOptions = {
-  origin: "http://localhost:5173/",
+  origin: "http://localhost:5173",
   optionsSuccessStatus: 200,
 };
 
@@ -47,5 +47,6 @@ router.get(
   authenticateToken,
   journalController.getJournalByStudent
 );
+router.get("/getStudents", authenticateToken, journalController.getStudents);
 
 module.exports = router;

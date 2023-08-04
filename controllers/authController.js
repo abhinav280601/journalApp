@@ -106,9 +106,13 @@ async function loginTeacher(req, res) {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user[0].id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user[0].id, role: "teacher" },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     res.json({ token });
     // req.session.token = token;
@@ -136,12 +140,16 @@ async function loginStudent(req, res) {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user[0].id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user[0].id, role: "student" },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
-    res.json({ token });
-    req.session.token = token;
+    res.json({ token, userId: user[0].id });
+    // req.session.token = token;
   } catch (error) {
     console.error("Error logging in:", error);
     res.status(500).json({ message: "Failed to login" });

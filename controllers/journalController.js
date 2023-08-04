@@ -6,17 +6,18 @@ const fs = require("fs");
 
 async function createJournal(req, res) {
   try {
-    const { title, description, username } = req.body;
+    const { title, description } = req.body;
     const attachment = req.file;
-    const selectQuery = `SELECT id FROM teachers WHERE username = :username`;
-    const [teacher] = await sequelize.query(selectQuery, {
-      replacements: { username },
-      type: QueryTypes.SELECT,
-    });
+    const teacher = req.userId;
+    // const selectQuery = `SELECT id FROM teachers WHERE username = :username`;
+    // const [teacher] = await sequelize.query(selectQuery, {
+    //   replacements: { username },
+    //   type: QueryTypes.SELECT,
+    // });
 
-    if (!teacher) {
-      return res.status(404).json({ message: "Teacher not found" });
-    }
+    // if (!teacher) {
+    //   return res.status(404).json({ message: "Teacher not found" });
+    // }
     let attachmentValue = "";
     if (attachment) {
       attachmentValue = attachment.buffer;
@@ -28,13 +29,13 @@ async function createJournal(req, res) {
           title,
           description,
           attachment: attachmentValue,
-          teacherId: teacher.id,
+          teacherId: teacher,
         },
         type: QueryTypes.INSERT,
       }
     );
 
-    res.json({ journalId: journal });
+    res.json({ journalId: journal, message: "Journal created!" });
   } catch (error) {
     console.error("Error creating journal:", error);
     res.status(500).json({ message: "Failed to create journal" });
@@ -118,8 +119,16 @@ async function publishJournal(req, res) {
           type: QueryTypes.INSERT,
         }
       );
+      await sequelize.query(
+        `UPDATE journals SET publish_time = DATE() WHERE id = :journalId`,
+        {
+          replacements: {
+            journalId: journal.id,
+          },
+          type: QueryTypes.UPDATE,
+        }
+      );
     }
-
     res.json({ message: "Journal Published!" });
   } catch (error) {
     console.error("Error publishing journal:", error);
@@ -170,6 +179,12 @@ async function deleteJournal(req, res) {
       },
       type: QueryTypes.DELETE,
     });
+    // await sequelize.query(`DELETE FROM tags WHERE journal_id = :journalId`, {
+    //   replacements: {
+    //     journalId,
+    //   },
+    //   type: QueryTypes.DELETE,
+    // });
 
     res.sendStatus(200);
   } catch (error) {
@@ -180,24 +195,24 @@ async function deleteJournal(req, res) {
 
 async function getJournalByTeacher(req, res) {
   try {
-    const { username } = req.body;
+    // const { username } = req.body;
 
-    const [teacher] = await sequelize.query(
-      `SELECT id FROM teachers WHERE username = :username`,
-      {
-        replacements: { username },
-        type: QueryTypes.SELECT,
-      }
-    );
+    // const [teacher] = await sequelize.query(
+    //   `SELECT id FROM teachers WHERE username = :username`,
+    //   {
+    //     replacements: { username },
+    //     type: QueryTypes.SELECT,
+    //   }
+    // );
 
-    if (!teacher) {
-      return res.status(404).json({ message: "Teacher not found" });
-    }
+    // if (!teacher) {
+    //   return res.status(404).json({ message: "Teacher not found" });
+    // }
 
     const journals = await sequelize.query(
       `SELECT * FROM journals WHERE teacher_id = :teacherId`,
       {
-        replacements: { teacherId: teacher.id },
+        replacements: { teacherId: [req.userId] },
         type: QueryTypes.SELECT,
       }
     );
@@ -211,24 +226,24 @@ async function getJournalByTeacher(req, res) {
 
 async function getJournalByStudent(req, res) {
   try {
-    const { username } = req.body;
+    // const { username } = req.body;
 
-    const [student] = await sequelize.query(
-      `SELECT id FROM students WHERE username = :username`,
-      {
-        replacements: { username },
-        type: QueryTypes.SELECT,
-      }
-    );
+    // const [student] = await sequelize.query(
+    //   `SELECT id FROM students WHERE username = :username`,
+    //   {
+    //     replacements: { username },
+    //     type: QueryTypes.SELECT,
+    //   }
+    // );
 
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
+    // if (!student) {
+    //   return res.status(404).json({ message: "Student not found" });
+    // }
 
     const tags = await sequelize.query(
       `SELECT * FROM tags WHERE student_id = :studentId`,
       {
-        replacements: { studentId: student.id },
+        replacements: { studentId: [req.userId] },
         type: QueryTypes.SELECT,
       }
     );
@@ -268,7 +283,15 @@ async function getJournalByStudent(req, res) {
     res.status(500).json({ message: "Failed to retrieve journals" });
   }
 }
-
+async function getStudents(req, res) {
+  try {
+    const [students] = await sequelize.query(`SELECT username FROM students`);
+    res.json(students);
+  } catch (error) {
+    console.error("Error retrieving students:", error);
+    res.status(500).json({ message: "Failed to retrieve students" });
+  }
+}
 // async function getTaggedJournals(req, res) {
 //   try {
 //     const { studentId } = req.params;
@@ -295,4 +318,5 @@ module.exports = {
   publishJournal,
   getJournalByTeacher,
   getJournalByStudent,
+  getStudents,
 };
